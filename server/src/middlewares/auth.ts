@@ -1,31 +1,22 @@
-import { db } from "@/db";
-import { asyncHandler, errors } from "@/utils";
 import env from "@/env";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export const auth = asyncHandler(async (req, res, next) => {
-  const authorization = req.headers.authorization;
-  if (!authorization) {
-    throw new errors.Unauthorized();
-  }
-  const token = authorization.split(" ")[1];
+export const auth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer "))
+    return res.status(401).json({ error: "Unauthorized" });
 
-  if (!token) {
-    throw new errors.Unauthorized();
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, env.jwt_secret!);
+    (req as any).user = decoded;
+    next();
+  } catch {
+    res.status(401).json({ error: "Invalid token" });
   }
-
-  const payload = jwt.verify(token, env.jwt_secret) as { id: string };
-
-  if (!payload) {
-    throw new errors.Unauthorized();
-  }
-
-  const user = await db.query.users.findFirst({
-    where: ({ id }, { eq }) => eq(id, payload.id),
-  });
-  if (!user) {
-    throw new errors.Unauthorized();
-  }
-  req.user = user;
-  next();
-});
+};

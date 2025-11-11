@@ -1,10 +1,30 @@
 import { Tabs } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { Platform } from "react-native";
+import { useEffect, useState } from "react";
+import * as SecureStore from 'expo-secure-store'
+import { Redirect } from "expo-router";
 
 export default function TabLayout() {
+  
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  
+    useEffect(() => {
+      (async () => {
+        const token = await SecureStore.getItemAsync('accessToken');
+        setAuthenticated(!!token);
+      })();
+    }, []);
+  
+    if (authenticated === null) return null;
+  
+    if (!authenticated) {
+      return <Redirect href="/(sign-in)" />;
+    }
+  
   return (
     <Tabs
+      initialRouteName="(home)"
       screenOptions={{
         tabBarShowLabel: false,
         headerShown: false,

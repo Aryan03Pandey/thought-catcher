@@ -4,6 +4,7 @@ import { IServer, IServerConfig } from "./types";
 import { Route } from "@/routes/types";
 import { validate } from "@/middlewares";
 import { asyncHandler } from "./utils";
+import { connectDatabase } from "./db";
 
 class Server implements IServer {
   private app: express.Application;
@@ -41,8 +42,10 @@ class Server implements IServer {
       );
     });
   }
-  public start(port?: number): void {
+  public async start(port?: number): Promise<void> {
     if (port) this.port = port;
+    
+    await connectDatabase();
 
     if (this.config.useJSON) this.app.use(express.json());
     if (this.config.urlEncoded)

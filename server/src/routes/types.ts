@@ -1,16 +1,16 @@
 import { Request, RequestHandler } from "express";
 import { HTTPMethod } from "@/types";
-import { AnyZodObject, z } from "zod";
+import { ZodObject, z, ZodRawShape } from "zod";
 
 export interface RouteClass {
   getRoutes(): Route[];
 }
 
-export type RouteValidation<
-  Body extends AnyZodObject | undefined = AnyZodObject,
-  Query extends AnyZodObject | undefined = AnyZodObject,
-  Params extends AnyZodObject | undefined = AnyZodObject,
-  Response extends AnyZodObject | undefined = AnyZodObject
+export type RouteValidation <
+  Body extends ZodObject<any> | undefined = undefined,
+  Query extends ZodObject<any> | undefined = undefined,
+  Params extends ZodObject<any> | undefined = undefined,
+  Response extends ZodObject<any> | undefined = undefined
 > = {
   body?: Body;
   query?: Query;
@@ -20,22 +20,22 @@ export type RouteValidation<
 
 export type Route<Validation extends RouteValidation = RouteValidation> =
   | {
-      routes?: never;
-      path: string;
-      method: HTTPMethod;
-      handler: RequestHandler<
-        Validation["params"] extends AnyZodObject
+    routes?: never;
+    path: string;
+    method: HTTPMethod;
+    handler: RequestHandler<
+        Validation["params"] extends ZodObject<any>
           ? z.infer<Validation["params"]>
-          : Request["params"],
-        Validation["response"] extends AnyZodObject
+          : Record<string, string>,
+        Validation["response"] extends ZodObject<any>
           ? z.infer<Validation["response"]>
-          : unknown,
-        Validation["body"] extends AnyZodObject
+          : any,
+        Validation["body"] extends ZodObject<any>
           ? z.infer<Validation["body"]>
-          : unknown,
-        Validation["query"] extends AnyZodObject
+          : any,
+        Validation["query"] extends ZodObject<any>
           ? z.infer<Validation["query"]>
-          : Request["query"]
+          : Record<string, any>
       >;
       middlewares?: RequestHandler[];
       validation?: Validation;

@@ -42,4 +42,12 @@ export const errors = {
       this.name = "NotFound";
     }
   },
+  InternalServerError: class InternalServerError extends Error {
+    public status = 500;
+    constructor(message?: string) {
+      message = message || "Internal Server Error";
+      super(message);
+      this.name = "InternalServerError"
+    } 
+  }
 }

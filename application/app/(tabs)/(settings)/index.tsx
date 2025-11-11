@@ -1,15 +1,18 @@
 import { FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Text, View } from '@/components/Common/Themed';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import { SettingListItem as SettingListItemType } from '@/constants/Types';
-import ConfirmDelete from '@/components/Common/ConfirmDialog'; // ✅ use your reusable modal
+import ConfirmDelete from '@/components/Common/ConfirmDialog'; 
+import * as SecureStore from 'expo-secure-store'
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import api from '@/api/axios';
 
 export default function Settings() {
-  const [image, setImage] = useState<string | null>(null);
+  const [user, setUser] = useState<Record<string, any> | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
 
@@ -23,13 +26,6 @@ export default function Settings() {
     console.log('Profile deleted');
   };
 
-  const settingList: Array<SettingListItemType> = [
-    { title: 'plans', link: '/(tabs)/(settings)/plans' },
-    { title: 'preferences', link: '/(tabs)/(settings)/preferences' },
-    { title: 'communications', link: '/(tabs)/(settings)/communications' },
-    { title: 'logout', callback: () => console.log('User logged out') },
-    { title: 'delete profile', callback: handleDeleteProfile },
-  ];
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -43,10 +39,56 @@ export default function Settings() {
     });
 
     if (!result.canceled && result.assets?.length) {
-      setImage(result.assets[0].uri);
+      setUser({...user, picture: result.assets[0].uri});
+     //TO DO: upload image to S3 and call update user api 
     }
   };
 
+  useEffect(() => {
+    
+    GoogleSignin.configure({
+          webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+          scopes: ['profile', 'email'],
+          offlineAccess: true,
+          forceCodeForRefreshToken: false,
+          // iosClientId: process.env.EXPO_PUBLIC_IOS_ID,
+        });
+  }, [])
+  
+  const handleGoogleSingout = async () => {
+    try{
+      // initiates google sign out
+      const refreshToken = await SecureStore.getItemAsync('refreshToken')
+      if(!refreshToken){
+        throw new Error("Invalid Operation, user not logged in")
+      }
+      
+      const response = await api.post('/auth/logout', {
+        refreshToken
+      })
+      
+      if(response.status === 200){
+        await GoogleSignin.signOut()
+        await SecureStore.deleteItemAsync("user")
+        await SecureStore.deleteItemAsync('accessToken')
+        await SecureStore.deleteItemAsync('refreshToken')
+        console.log("User logged out")
+        router.replace('/(sign-in)')
+      }
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+  
+  const settingList: Array<SettingListItemType> = [
+    { title: 'plans', link: '/(tabs)/(settings)/plans' },
+    { title: 'preferences', link: '/(tabs)/(settings)/preferences' },
+    { title: 'communications', link: '/(tabs)/(settings)/communications' },
+    { title: 'logout', callback: () => handleGoogleSingout() },
+    { title: 'delete profile', callback: handleDeleteProfile },
+  ];
+  
   const ListItem = ({ data }: { data: SettingListItemType }) => {
     const handlePress = () => {
       if (data.link) {
@@ -86,6 +128,18 @@ export default function Settings() {
       </TouchableOpacity>
     );
   };
+  
+  useEffect(() => {
+    const getUser = async () => {
+      const userString = await SecureStore.getItemAsync('user');
+      if(userString){
+        const userParsed = JSON.parse(userString)
+        setUser(userParsed)
+      }
+    }
+    
+    getUser();
+  }, [])
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'bottom']}>
@@ -93,8 +147,8 @@ export default function Settings() {
         {/* Profile Section */}
         <View style={styles.profileContainer}>
           <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
-            {image ? (
-              <Image source={{ uri: image }} style={styles.avatar} />
+            {user && user.picture ? (
+              <Image source={{ uri: user.picture }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatar, styles.placeholder]}>
                 <FontAwesome name="user" size={60} color="#888" />
@@ -102,7 +156,7 @@ export default function Settings() {
             )}
           </TouchableOpacity>
 
-          <Text style={styles.userName}>Aryan</Text>
+          <Text style={styles.userName}>{ user && user.name }</Text>
           <View style={styles.planTag}>
             <Text style={styles.planTagText}>FREE</Text>
           </View>
@@ -119,7 +173,6 @@ export default function Settings() {
         </View>
       </View>
 
-      {/* ✅ Confirm Delete Modal */}
       <ConfirmDelete
         visible={showConfirm}
         confirmText="Delete Profile?"

@@ -12,37 +12,42 @@ export class UserRoutes implements RouteClass {
   public getRoutes(): Route[] {
     return [
       {
-        method: "get",
-        path: "/v1/users/auth/init",
-        handler: this.userController.loginInit.bind(this.userController),
-        validation: getSchemaForRoute("v1/users/auth/init"),
+        method: "post",
+        path: "/v1/auth/login",
+        handler: this.userController.login.bind(this.userController),
+        // validation: getSchemaForRoute("v1/users/auth/init"),
         isPublic: true,
       },
       {
-        method: "get",
-        path: "/v1/users/auth/finish",
-        handler: this.userController.loginFinish.bind(this.userController),
+        method: "post",
+        path: "/v1/auth/refresh",
+        handler: this.userController.refresh.bind(this.userController),
         isPublic: true,
-        validation: getSchemaForRoute("v1/users/auth/finish"),
       },
       {
         method: "post",
-        path: "/v1/users/auth/setup/profile",
-        handler: this.userController.profileSetup.bind(this.userController),
-        validation: getSchemaForRoute("v1/users/auth/setup/profile"),
+        path: "/v1/auth/logout",
+        handler: this.userController.logout.bind(this.userController),
+        // isPublic: false
       },
       {
-        method: "post",
-        path: "/v1/users/auth/setup/fund",
-        handler: this.userController.fundSetup.bind(this.userController),
-        validation: getSchemaForRoute("v1/users/auth/setup/fund"),
+        method: 'get',
+        path: '/v1/check',
+        handler: this.userController.check.bind(this.userController),
+        // validation: 
       },
       {
         method: "get",
-        path: "/v1/users/me",
+        path: "/v1/auth/me",
         handler: this.userController.me.bind(this.userController),
-        validation: getSchemaForRoute("v1/users/me"),
+        // validation: getSchemaForRoute("v1/users/me"),
       },
+      {
+        method: "post",
+        path: "/v1/auth/update",
+        handler: this.userController.update.bind(this.userController),
+        // validator: getSchemaForRoute("v1/users/update")
+      }
     ];
   }
 }
