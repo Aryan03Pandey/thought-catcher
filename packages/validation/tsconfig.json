@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "private": true,
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": ["src"]
+}

@@ -1,6 +1,7 @@
 import { TagsController } from "@/controllers/tags.controller";
 import { Route, RouteClass } from "./types";
 import { TagsService } from "@/services/tags.service";
+import { getSchemaForRoute } from "@thoughts/validation"
 
 export class TagsRoutes implements RouteClass {
   private tagsController: TagsController;
@@ -9,23 +10,25 @@ export class TagsRoutes implements RouteClass {
     this.tagsController = new TagsController(service);
   }
 
-  public getRoutes(): Route[] {
+  public getRoutes(): Route<any>[] {
     return [
       {
         method: "get",
         path: "/v1/tags",
         handler: this.tagsController.all.bind(this.tagsController),
-        // validation: getSchemaForRoute("v1/users/auth/init"),
+        validation: getSchemaForRoute("v1/tags"),
       },
       {
         method: "post",
         path: "/v1/tags/create",
-        handler: this.tagsController.create.bind(this.tagsController)
+        handler: this.tagsController.create.bind(this.tagsController),
+        validation: getSchemaForRoute("v1/tags/create"),
       },
       {
         method: "delete",
         path: "/v1/tags/:id",
-        handler: this.tagsController.delete.bind(this.tagsController)
+        handler: this.tagsController.delete.bind(this.tagsController),
+        validation: getSchemaForRoute("v1/tags/:id.delete"),
       },
     ];
   }

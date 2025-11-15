@@ -16,7 +16,6 @@ export class TagsService {
       const tags = await Tag.find({ createdBy: userId });
       
       return {
-        success: true,
         data: tags
       }
     }catch(error : any){
@@ -55,8 +54,6 @@ export class TagsService {
       })
       
       return {
-        success: true,
-        message: "Tag Created",
         data: tag
       }
     }catch(error: any){
@@ -83,7 +80,6 @@ export class TagsService {
         throw new errors.NotFound("Tag not found");
         
       return {
-        success: true,
         message: "Tag deleted successfully"
       }      
     }catch(error: any){

@@ -1,0 +1,14 @@
+{
+  "name": "thoughts-catcher",
+  "private": true,
+  "workspaces": [
+    "application",
+    "server",
+    "packages/*"
+  ],
+  "scripts": {
+    "bootstrap": "yarn",
+    "start:app": "yarn workspace application start",
+    "start:server": "yarn workspace server dev"
+  }
+}

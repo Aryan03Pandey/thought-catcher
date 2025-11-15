@@ -117,12 +117,9 @@ export class UserService {
       .createHash("sha256")
       .update(refreshToken)
       .digest("hex");
-
-    console.log(refreshTokenHash)
-
     
     await RefreshToken.deleteOne({ tokenHash: refreshTokenHash });
-    return { success: true, message: "Logged out successfully" };
+    return { message: "Logged out successfully" };
   }
   
   async me(req: Request){
@@ -132,9 +129,8 @@ export class UserService {
       }
   
       const result = {
-        success: true,
         user: {
-          id: req.user._id,
+          _id: req.user._id,
           name: req.user.name,
           email: req.user.email,
           picture: req.user.picture,
@@ -163,7 +159,9 @@ export class UserService {
   
       return {
         message: "User updated successfully",
-        result: updatedUser
+        data: {
+          user: updatedUser
+        }
       }
     } catch (error) {
       console.error("Error updating user:", error);

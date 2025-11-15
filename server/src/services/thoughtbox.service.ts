@@ -17,7 +17,6 @@ export class ThoughtBoxService {
         .sort({ createdAt: -1 })
       
       return {
-        success: true,
         data: boxes
       }
     }catch(error: any){
@@ -51,7 +50,6 @@ export class ThoughtBoxService {
         throw new errors.NotFound("Thoughtbox not found");
       
       return {
-        success: true,
         data: box
       }
     }catch(error: any){
@@ -88,8 +86,6 @@ export class ThoughtBoxService {
       });
       
       return {
-        success: true,
-        message: "Thought box successfully created",
         data: box
       }
       
@@ -115,7 +111,6 @@ export class ThoughtBoxService {
       }
       
       return {
-        success: true,
         message: "Thought box and associated thoughts deleted successfully"
       }
     }catch(error: any){

@@ -25,7 +25,6 @@ export class ThoughtService {
         .limit(Number(limit));
 
       return {
-        success: true,
         data: thoughts,
         pagination: {
           total,
@@ -57,7 +56,6 @@ export class ThoughtService {
       if (!thought) throw new errors.NotFound("Thought not found");
 
       return {
-        success: true,
         data: thought,
       };
     } catch (error: any) {
@@ -98,8 +96,6 @@ export class ThoughtService {
       await box.save();
 
       return {
-        success: true,
-        message: "Thought created successfully",
         data: thought,
       };
     } catch (error: any) {
@@ -130,7 +126,6 @@ export class ThoughtService {
       }
 
       return {
-        success: true,
         message: "Thought deleted successfully",
       };
     } catch (error: any) {
