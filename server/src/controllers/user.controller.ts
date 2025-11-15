@@ -46,6 +46,14 @@ export class UserController {
     })
   }
   
+  async deleteProfile(req: Request, res: Response){
+    const result = await this.service.deleteProfile(req);
+    res.status(200).json({
+      message: "Profile deleted successfully",
+      data: result
+    })
+  }
+  
   async check(req: Request, res: Response){
     const result = await this.service.check();
     res.json({

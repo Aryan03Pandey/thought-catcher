@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, FlatList } from 'react-native';
 import { Link } from 'expo-router';
 import { Text, View } from '@/components/Common/Themed';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,20 +12,31 @@ export default function Home() {
   
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'bottom']}>
-      <ScrollView 
-        contentContainerStyle={styles.container}
-        stickyHeaderIndices={[0]}
+      <FlatList
+        data={[]}
+        renderItem={null}
+        keyExtractor={() => "key"}
+        ListHeaderComponent={
+          <View style={{ gap: 18, paddingBottom: 12 }}>
+            <View style={styles.stickyHeader}>
+              <SearchBar
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search..."
+              />
+            </View>
+        
+            <ThoughtInput />
+        
+            <Separator />
+          </View>
+        }
+        // stickyHeaderIndices={[0]}
+        ListFooterComponent={
+          <ThoughtsList data={[]} />
+        }
         showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.stickyHeader}>
-          <SearchBar value={query} onChangeText={setQuery} placeholder='Search...' />
-        </View>
-        
-        <ThoughtInput />
-        
-        <Separator />
-        <ThoughtsList data={[]} />
-      </ScrollView>
+      />   
     </SafeAreaView>
   );
 }

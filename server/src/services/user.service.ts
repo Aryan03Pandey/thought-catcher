@@ -144,10 +144,14 @@ export class UserService {
   }
   
   async update(req: Request){
-    const { newUser } = req.body;
     
     try {
   
+      if(!req.user){
+        throw new errors.Unauthorized();
+      }
+      
+      const { newUser } = req.body;
       const updatedUser = await User.updateOne(
         { email: req.user.email },
         { $set: newUser }
@@ -170,7 +174,25 @@ export class UserService {
     
   }
   
+  async deleteProfile(req: Request){
+    try{
+      if(!req.user){
+        throw new errors.Unauthorized();
+      }
+      
+      const {refreshToken} = req.user;
+      
+      await RefreshToken.deleteOne({ tokenHash: refreshToken });
+      await User.deleteOne({ email: req.user.email });
+      
+      return { message: "Profile deleted successfully" };
+    }catch(error : any){
+      throw new errors.InternalServerError(error.message);
+    }
+  }
+  
   async check(){
     return "Hey there"
   }
+  
 }

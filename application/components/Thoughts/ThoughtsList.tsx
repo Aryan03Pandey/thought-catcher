@@ -1,4 +1,4 @@
-import { Button, FlatList, StyleSheet } from "react-native";
+import { Button, DimensionValue, FlatList, StyleSheet } from "react-native";
 import { View } from "../Common/Themed";
 import { useEffect, useState } from "react";
 import ListToggleButtonGrp from "../Common/ListViewToggleButtonGrp";
@@ -30,7 +30,7 @@ export default function ThoughtsList({data} : {data : Array<Thought>}){
     ]
   }
 
-  let cardWidth = isListView ? '100%' : '48%'
+  let cardWidth : DimensionValue = isListView ? '100%' : '48%'
   let margin = isListView ? 0 : 4
   useEffect(() => {
     if(isListView){
@@ -49,15 +49,32 @@ export default function ThoughtsList({data} : {data : Array<Thought>}){
       
       <ListToggleButtonGrp selected={isListView ? 0 : 1} toggleView={setIsListView}  />
       
+      
       <FlatList
         data={data}
         keyExtractor={(item) => item.id.toString()}
         numColumns={isListView ? 1 : 2}
-        renderItem={({item}) => <ThoughtCard key={item.id} data={item} style={{width: cardWidth, margin: margin}} />}
-        contentContainerStyle={styles.listContainer}
-        ListFooterComponent={<View style={{height: 70, width: '100%'}}></View>}
-        key={isListView ? 'list' : 'grid'}
+        key={isListView ? "list" : "grid"}
+        contentContainerStyle={{
+          padding: 4,
+          paddingBottom: 80,
+        }}
+        columnWrapperStyle={
+          isListView ? undefined : { justifyContent: "space-between" }
+        }
+        renderItem={({ item }) => (
+          <View style={{ marginBottom: 16, width: cardWidth }}>
+            <ThoughtCard
+              data={item}
+              style={{
+                width: "100%",
+              }}
+            />
+          </View>
+        )}
+        ListFooterComponent={<View style={{ height: 70 }} />}
       />
+
       
     </View>
   )
@@ -66,7 +83,7 @@ export default function ThoughtsList({data} : {data : Array<Thought>}){
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
-    gap: 4,
+    gap: 12,
   },
   listContainer: {
     display: 'flex',

@@ -55,7 +55,18 @@ const authRouteValidation = {
     body: z.object({
       newUser: userSchema
     })
-  }
+  },
+  "v1/auth/delete": {
+    response: z.object({
+      message: z.string(),
+      data: z.object({
+        message: z.string()
+      })
+    }),
+    body: z.object({
+      refreshToken: z.string()
+    })
+  },
 } 
 
 export default authRouteValidation;
